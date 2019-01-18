@@ -2,79 +2,80 @@ package com.zebra.windevmobiledatawedgewrapper;
 
 // Imports
 import com.zebra.datawedgeprofileintents.*;
+
+import android.app.Activity;
 import android.util.Log;
-import android.text.TextUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
 
-public class DatawedgeIntentWrapperFacade {
+public class DataWedgeWindevMobileFacade {
 
     public interface IAppelProcedureWL
     {
-        boolean appelProcedureWL(Object... aParameters);
+        void appelProcedureWLSS(String param1, String param2);
+        void appelProcedureWLSSB(String param1, String param2, boolean param3);
+        void appelProcedureWLSSS(String param1, String param2, String param3);
+        void appelProcedureWLSSSS(String param1, String param2, String param3, String param4);
     }
 
-    public interface IContextRetriever
+    public interface IActivityRetriever
     {
-        Context getContext();
+        Activity getActivity();
     }
 
     // Membres
-    public static String TAG = "DatawedgeIntentWrapperFacade";
+    private String TAG = "DataWedgeWindevMobileFacade";
 
     // Paramètres d'intent pour la réception des codes scannés
-    public static String mIntentAction = "com.symbol.windevdatawedgedemo.RECVR";
-    public static String mIntentCategory = "android.intent.category.DEFAULT";
+    private String mIntentAction = "com.symbol.windevdatawedgedemo.RECVR";
+    private String mIntentCategory = "android.intent.category.DEFAULT";
 
-    public static boolean mbShowSpecialChars = false;
+    public boolean mbShowSpecialChars = false;
 
     // Callback utilisé pour la réception des codes scannés
-    public static String msCallbackHandleScan = "";
+    private String msCallbackHandleScan = "";
 
     // Interface pour executer les procedures WL
     // Cet objet doit être implémenté dans la collection de procedures WL
-    public static IAppelProcedureWL mAppelProcedureWL = null;
+    private IAppelProcedureWL mAppelProcedureWL = null;
 
-    // Interface pour récupérer le contexte de l'application
+    // Interface pour récupérer l'activité courante de l'application
     // Cet objet doit être implémenté dans la collection de procédures WL
-    public static IContextRetriever mContextRetriever = null;
+    private IActivityRetriever mActivityRetriever = null;
 
     // Membres initialiser un profil
-    private static DWProfileSetConfigSettings dwProfileSetConfigSettings = null;
+    private DWProfileSetConfigSettings dwProfileSetConfigSettings = null;
 
     // Membres modifier les paramètres du scanner
-    private static DWProfileSwitchBarcodeParamsSettings dwProfileSwitchBarcodeParamsSettings = null;
+    private DWProfileSwitchBarcodeParamsSettings dwProfileSwitchBarcodeParamsSettings = null;
 
-    private static BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            _DWTraiteDonneeScannee(intent);
-        }
-    };
+    private BroadcastReceiver mMessageReceiver = null;
+    // On doit garder l'activité qui a permis d'enregistrer le receiver
 
-    private static boolean appelProcedureWL(Object... arguments)
+    private BroadcastReceiver mMessageReceiverActivity = null;
+
+    public DataWedgeWindevMobileFacade(IAppelProcedureWL aAppelProcedureWLInterface, IActivityRetriever aActivityRetrieverInterface)
     {
-        if(mAppelProcedureWL != null)
-            return mAppelProcedureWL.appelProcedureWL(arguments);
-        return false;
+        mAppelProcedureWL = aAppelProcedureWLInterface;
+        mActivityRetriever = aActivityRetrieverInterface;
     }
 
-    private static Context getContexteApplication()
+    private Activity getActivity()
     {
-        if(mContextRetriever != null)
+        if(mActivityRetriever != null)
         {
-            return mContextRetriever.getContext();
+            return mActivityRetriever.getActivity();
         }
         return null;
     }
 
-    private static boolean _DWTraiteDonneeScannee(Intent i)
+    private boolean _DWTraiteDonneeScannee(Intent i)
     {
         // check the intent action is for us
-        if ( i.getAction().contentEquals(mIntentAction) ) {
+        if ( i.getAction().contentEquals(mIntentAction) && msCallbackHandleScan != "" && mAppelProcedureWL != null) {
             // get the source of the data
             String source = i.getStringExtra(DataWedgeConstants.SOURCE_TAG);
             // save it to use later
@@ -125,26 +126,26 @@ public class DatawedgeIntentWrapperFacade {
                     }
                     data = transformedString;
                 }
-                if(msCallbackHandleScan != "")
-                {
-                    appelProcedureWL(msCallbackHandleScan, data, sSymbology);
-                }
+
+                DWLogMessage("Scan: " + data + " " + sSymbology);
+                mAppelProcedureWL.appelProcedureWLSSS(msCallbackHandleScan, data, sSymbology);
+
                 return true;
             }
         }
         return false;
     }
 
-    private static void _DataWedgeInitialise(){
+    public void DataWedgeInitialise(){
         _DWReinitialiseValeurs();
     }
 
-    private static void _DWVerifierSiLeProfilExiste(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWVerifierSiLeProfilExiste(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
 	/*
 	The profile checker will check if the profile already exists
 	*/
-        DWProfileChecker checker = new DWProfileChecker(getContexteApplication());
+        DWProfileChecker checker = new DWProfileChecker(getActivity());
 
         // Setup profile checker parameters
         DWProfileCheckerSettings profileCheckerSettings = new DWProfileCheckerSettings()
@@ -159,48 +160,43 @@ public class DatawedgeIntentWrapperFacade {
             public void result(String profileName, boolean exists)
             {
                 // exists == true means that the profile already... exists..
-                if(exists){
-                    _DWLogMessage("Profile " + profileName + " found in DW profiles list.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Profile " + profileName + (exists == false ? " not" : "") + " found in DW profiles list.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName, true);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSB(fsCallbackSucces, profileName, exists);
+                        }
                     }
-                }
-                else
-                {
-                    _DWLogMessage("Profile " + profileName + " not found in DW profiles list.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        appelProcedureWL(fsCallbackSucces, profileName, false);
-                    }
-                }
                 _DWReinitialiseValeurs();
             }
 
             @Override
             public void timeOut(String profileName){
                 String sErreur = "Timeout lors de la vérification si le profil " + profileName + "existe.";
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur, "");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWLogMessage(String message)
+    private void DWLogMessage(String message)
     {
         Log.d(TAG, message);
     }
 
-    private static void _DWCreerUnProfil(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWCreerUnProfil(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
-        DWProfileCreate profileCreate = new DWProfileCreate(getContexteApplication());
+        DWProfileCreate profileCreate = new DWProfileCreate(getActivity());
 
         DWProfileCreateSettings profileCreateSettings = new DWProfileCreateSettings()
         {{
@@ -214,21 +210,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Profile: " + profileName + " created with success.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Profile: " + profileName + " created with success.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de la création du profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -237,20 +239,23 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de la création du profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur,"");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWEffacerUnProfil(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWEffacerUnProfil(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
-        DWProfileDelete deleteProfile = new DWProfileDelete(getContexteApplication());
+        DWProfileDelete deleteProfile = new DWProfileDelete(getActivity());
 
         DWProfileDeleteSettings profileDeleteSettings = new DWProfileDeleteSettings()
         {{
@@ -264,21 +269,28 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Profile: " + profileName + " deleted with success.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Profile: " + profileName + " deleted with success.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
+                        //appelProcedureWL(fsCallbackSucces, profileName);
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de l'effacement du profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -287,24 +299,27 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de l'effacement du profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur, "");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWCreerConfigurationInitialiserProfil_Java(String profilAsJsonString)
+    public void DWCreerConfigurationInitialiserProfil_Java(String profilAsJsonString)
     {
         dwProfileSetConfigSettings = DWProfileSetConfigSettings.fromJson(profilAsJsonString);
 
         // Some parameters are forced in the plugin (ex: disable keystroke plugin, enable intent output, etc...)
         // Specific for windev
-        dwProfileSetConfigSettings.MainBundle.PACKAGE_NAME = getContexteApplication().getPackageName();
+        dwProfileSetConfigSettings.MainBundle.PACKAGE_NAME = getActivity().getPackageName();
         dwProfileSetConfigSettings.IntentPlugin.intent_action = mIntentAction;
         dwProfileSetConfigSettings.IntentPlugin.intent_category = mIntentCategory;
         dwProfileSetConfigSettings.IntentPlugin.intent_output_enabled = true;
@@ -313,12 +328,12 @@ public class DatawedgeIntentWrapperFacade {
         // Profile is ready for action !!! :D
     }
 
-    private static void _DWInitialiserUnProfil(String sCallback, String sCallbackError)
+    public void DWInitialiserUnProfil(String sCallback, String sCallbackError)
     {
         final String fsCallbackSucces = sCallback;
         final String fsCallbackError = sCallbackError;
 
-        DWProfileSetConfig profileSetConfig = new DWProfileSetConfig(getContexteApplication());
+        DWProfileSetConfig profileSetConfig = new DWProfileSetConfig(getActivity());
 
         profileSetConfig.execute(dwProfileSetConfigSettings, new DWProfileCommandBase.onProfileCommandResult() {
             @Override
@@ -326,21 +341,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Profile: " + profileName + " intialised with success.");
-                    _DWLogMessage("Trying to call procedure: " + fsCallbackSucces);
+                    DWLogMessage("Profile: " + profileName + " intialised with success.");
+                    DWLogMessage("Trying to call procedure: " + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de l'initialisation du profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure: " + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure: " + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -349,41 +370,105 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de l'initialisation du profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure: " + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure: " + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur, "");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWReinitialiseValeurs()
+    private void _DWReinitialiseValeurs()
     {
         dwProfileSetConfigSettings = null;
         dwProfileSwitchBarcodeParamsSettings = null;
-        mIntentAction = getContexteApplication().getPackageName() + ".RECVR";
     }
 
-    private static void _DWEffacerCallbackDeScan()
+    public void DWEffacerCallbackDeScan(boolean effacerReceiver, final String fsCallbackSucces, final String fsCallbackError)
     {
-        getContexteApplication().unregisterReceiver(mMessageReceiver);
+        String tempCallbackHandleScanString = msCallbackHandleScan;
+        // Remove reference to the Windev callback called when a scan occurs
+        msCallbackHandleScan = "";
+        Log.d(TAG, "Removing scan callback: " + tempCallbackHandleScanString + " succeeded");
+
+        if(effacerReceiver && mMessageReceiver != null) {
+            mIntentAction = "";
+            try {
+                getActivity().getApplicationContext().unregisterReceiver(mMessageReceiver);
+            } catch (Exception e) {
+                Log.d(TAG, e.getMessage());
+                if(fsCallbackError != "")
+                {
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSS(fsCallbackError, tempCallbackHandleScanString, e.getMessage());
+                    }
+                }
+                return;
+            }
+            mMessageReceiver = null;
+            Log.d(TAG, "Removing and unregistering message receiver:" + mIntentAction + "succeeded");
+        }
+        if(fsCallbackSucces != "")
+        {
+            if(mAppelProcedureWL != null) {
+
+                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, tempCallbackHandleScanString);
+            }
+        }
     }
 
-    private static void _DWEnregistrerCallbackDeScan(String sCallbackHandleScan)
+    public void DWEnregistrerCallbackDeScan(String sCallbackHandleScan, final String fsCallbackSucces, final String fsCallbackError)
     {
         msCallbackHandleScan = sCallbackHandleScan;
-        IntentFilter myFilter = new IntentFilter();
-        myFilter.addAction(mIntentAction);
-        myFilter.addCategory(mIntentCategory);
-        getContexteApplication().registerReceiver(mMessageReceiver, myFilter);
+        Log.d(TAG, "Registering scan callback: " + sCallbackHandleScan + " succedeed");
+
+        if(mMessageReceiver == null) {
+            mIntentAction = getActivity().getPackageName() + ".RECVR";
+            try {
+                mMessageReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        _DWTraiteDonneeScannee(intent);
+                    }
+                };
+                IntentFilter myFilter = new IntentFilter();
+                myFilter.addAction(mIntentAction);
+                myFilter.addCategory(mIntentCategory);
+                getActivity().getApplicationContext().registerReceiver(mMessageReceiver, myFilter);
+            }
+            catch(Exception e)
+            {
+                Log.d(TAG, e.getMessage());
+                if(fsCallbackError != "")
+                {
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSS(fsCallbackError,msCallbackHandleScan, e.getMessage());
+                    }
+                }
+                return;
+            }
+            Log.d(TAG, "Creating and registering message receiver: " + mIntentAction + " succedeed");
+        }
+        if(fsCallbackSucces != "")
+        {
+            if(mAppelProcedureWL != null) {
+
+                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, msCallbackHandleScan);
+            }
+        }
     }
 
-    private static void _DWDemarrerUnScan(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWDemarrerUnScan(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
-        DWScannerStartScan dwstartscan = new DWScannerStartScan(getContexteApplication());
+        DWScannerStartScan dwstartscan = new DWScannerStartScan(getActivity());
 
         DWProfileBaseSettings settings = new DWProfileCreateSettings()
         {{
@@ -397,21 +482,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Scan on profile: " + profileName + " started with success.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Scan on profile: " + profileName + " started with success.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors du demarrage du scan pour le profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -421,20 +512,23 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors du demarrage du scan pour le profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur,"");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWStopperUnScan(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWStopperUnScan(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
-        DWScannerStopScan dwstopscan = new DWScannerStopScan(getContexteApplication());
+        DWScannerStopScan dwstopscan = new DWScannerStopScan(getActivity());
 
         DWProfileBaseSettings settings = new DWProfileCreateSettings()
         {{
@@ -448,21 +542,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Scan on profile: " + profileName + " stopped with success.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Scan on profile: " + profileName + " stopped with success.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de la demande d'arrêt du scan pour le profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -471,23 +571,26 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de la demande d'arrêt du scan pour le profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur, "");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWModifierLesParametresDuScanner_Java(String sCallback, String sCallbackError)
+    public void DWModifierLesParametresDuScanner_Java(String sCallback, String sCallbackError)
     {
         final String fsCallbackSucces = sCallback;
         final String fsCallbackError = sCallbackError;
 
-        DWProfileSwitchBarcodeParams switchContinuousMode = new DWProfileSwitchBarcodeParams(getContexteApplication());
+        DWProfileSwitchBarcodeParams switchContinuousMode = new DWProfileSwitchBarcodeParams(getActivity());
         // TO UPDATE
         switchContinuousMode.execute(dwProfileSwitchBarcodeParamsSettings, new DWProfileCommandBase.onProfileCommandResult() {
             @Override
@@ -495,21 +598,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Scanner params on profile: " + profileName + " modification succeeded.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Scanner params on profile: " + profileName + " modification succeeded.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de la modificationd des paramètres du scanner du profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -518,26 +627,29 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de la modificationd des paramètres du scanner du profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur, "");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWCreerConfigurationModifierLesParametresDuScanner_Java(String settingsAsJSONString)
+    public void DWCreerConfigurationModifierLesParametresDuScanner_Java(String settingsAsJSONString)
     {
         dwProfileSwitchBarcodeParamsSettings = DWProfileSwitchBarcodeParamsSettings.fromJson(settingsAsJSONString);
     }
 
 
-    private static void _DWActiverDataWedge(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWActiverDataWedge(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
-        DWScannerPluginEnable dwpluginenable = new DWScannerPluginEnable(getContexteApplication());
+        DWScannerPluginEnable dwpluginenable = new DWScannerPluginEnable(getActivity());
 
         DWProfileBaseSettings settings = new DWProfileCreateSettings()
         {{
@@ -551,21 +663,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Plugin on profile: " + profileName + " enabled with success.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Plugin on profile: " + profileName + " enabled with success.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de l'activation de DataWedge pour le profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -574,20 +692,23 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de l'activation de DataWedge pour le profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur,"");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
         });
     }
 
-    private static void _DWDesactiverDataWedge(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWDesactiverDataWedge(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
-        DWScannerPluginDisable dwplugindisable = new DWScannerPluginDisable(getContexteApplication());
+        DWScannerPluginDisable dwplugindisable = new DWScannerPluginDisable(getActivity());
 
         DWProfileBaseSettings settings = new DWProfileCreateSettings()
         {{
@@ -601,21 +722,27 @@ public class DatawedgeIntentWrapperFacade {
             {
                 if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
                 {
-                    _DWLogMessage("Plugin on profile: " + profileName + " disabled with success.");
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                    DWLogMessage("Plugin on profile: " + profileName + " disabled with success.");
+                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
                     if(fsCallbackSucces != "")
                     {
-                        appelProcedureWL(fsCallbackSucces, profileName);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de la desactivation de DataWedge pour le profil: " + profileName;
-                    _DWLogMessage(sErreur);
-                    _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                    DWLogMessage(sErreur);
+                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
                     if(fsCallbackError != "")
                     {
-                        appelProcedureWL(fsCallbackError, sErreur, resultInfo);
+                        if(mAppelProcedureWL != null) {
+
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                        }
                     }
                 }
                 _DWReinitialiseValeurs();
@@ -624,11 +751,14 @@ public class DatawedgeIntentWrapperFacade {
             @Override
             public void timeout(String profileName) {
                 String sErreur = "Timeout lors de la desactivation de DataWedge pour le profil: " + profileName;
-                _DWLogMessage(sErreur);
-                _DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                DWLogMessage(sErreur);
+                DWLogMessage("Trying to call procedure:" + fsCallbackError);
                 if(fsCallbackError != "")
                 {
-                    appelProcedureWL(fsCallbackError, sErreur, "");
+                    if(mAppelProcedureWL != null) {
+
+                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
+                    }
                 }
                 _DWReinitialiseValeurs();
             }
