@@ -319,7 +319,7 @@ public class DataWedgeWindevMobileFacade {
 
         // Some parameters are forced in the plugin (ex: disable keystroke plugin, enable intent output, etc...)
         // Specific for windev
-        dwProfileSetConfigSettings.MainBundle.PACKAGE_NAME = getActivity().getPackageName();
+        //dwProfileSetConfigSettings.MainBundle.PACKAGE_NAME = getActivity().getPackageName();
         dwProfileSetConfigSettings.IntentPlugin.intent_action = mIntentAction;
         dwProfileSetConfigSettings.IntentPlugin.intent_category = mIntentCategory;
         dwProfileSetConfigSettings.IntentPlugin.intent_output_enabled = true;
