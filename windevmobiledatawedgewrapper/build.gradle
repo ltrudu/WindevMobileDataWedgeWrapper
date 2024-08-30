@@ -6,8 +6,7 @@ plugins {
 ext {
     PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
     PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
-    PUBLISH_VERSION = '7.0'
-    jarName = "${PUBLISH_ARTIFACT_ID}-${PUBLISH_VERSION}.jar"
+    PUBLISH_VERSION = '7.1'
 }
 
 android {
@@ -43,80 +42,99 @@ dependencies {
     api 'com.github.ltrudu:DataWedgeIntentWrapper:14.1'
 }
 
-tasks.register('clearJarRelease', Delete) {
-    delete "${buildDir}/outputs/jar/release/${jarName}"
+// Renommage des variables pour éviter les conflits
+def releaseJarName = "${project.name}-${project.version}-release.jar"
+def debugJarName = "${project.name}-${project.version}-debug.jar"
+
+// Tâches pour nettoyer les répertoires de sortie des JAR
+task clearJarRelease(type: Delete) {
+    delete file("${project.buildDir}/outputs/jar/release/${releaseJarName}")
 }
 
-
-tasks.register('clearJarDebug', Delete) {
-    delete "${buildDir}/outputs/jar/debug/${jarName}"
+task clearJarDebug(type: Delete) {
+    delete file("${project.buildDir}/outputs/jar/debug/${debugJarName}")
 }
 
-tasks.register('makeJarRelease', Copy) {
-    from("${buildDir}/intermediates/intermediate-jars/release/")
-    into("${buildDir}/outputs/jar/release")
-    include('classes.jar')
-    rename('classes.jar', jarName)
+// Tâches pour créer les JAR de release et debug
+task makeJarRelease(type: Copy) {
+    from file("${project.buildDir}/intermediates/intermediate-jars/release/")
+    into file("${project.buildDir}/outputs/jar/release")
+    include 'classes.jar'
+    rename 'classes.jar', releaseJarName
 }
 
-tasks.register('makeJarDebug', Copy) {
-    from("${buildDir}/intermediates/intermediate-jars/debug/")
-    into("${buildDir}/outputs/jar/debug")
-    include('classes.jar')
-    rename('classes.jar', jarName)
+task makeJarDebug(type: Copy) {
+    from file("${project.buildDir}/intermediates/intermediate-jars/debug/")
+    into file("${project.buildDir}/outputs/jar/debug")
+    include 'classes.jar'
+    rename 'classes.jar', debugJarName
 }
 
-tasks.register('makeAllJar', Copy) {
-    dependsOn tasks.named('makeJarRelease'), tasks.named('makeJarDebug')
+// Tâche pour regrouper les créations de JAR
+task makeAllJar(type: Copy) {
+    dependsOn makeJarRelease, makeJarDebug
 }
 
-tasks.named('makeJarRelease').configure {
-    dependsOn tasks.named('clearJarRelease'), tasks.named('build')
-}
+// Dépendances entre les tâches
+makeJarRelease.dependsOn clearJarRelease, build
+makeJarDebug.dependsOn clearJarDebug, build
+makeAllJar.dependsOn makeJarRelease, makeJarDebug
 
-tasks.named('makeJarDebug').configure {
-    dependsOn tasks.named('clearJarDebug'), tasks.named('build')
-}
+// Variables pour la publication
+def localReleaseDest = "${buildDir}/release/${PUBLISH_VERSION}"
 
-tasks.register('zipRelease', Zip) {
-    from "${buildDir}/release/${PUBLISH_VERSION}"
-    destinationDirectory.set(buildDir)
-    archiveFileName.set("release-${PUBLISH_VERSION}.zip")
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = project.PUBLISH_GROUP_ID
-            artifactId = project.PUBLISH_ARTIFACT_ID
-            version = project.PUBLISH_VERSION
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri("${buildDir}/release/${PUBLISH_VERSION}")
-        }
-    }
-}
-
-tasks.register('androidJavadocs', Javadoc) {
+// Tâche pour générer la documentation Javadoc
+task androidJavadocs(type: Javadoc) {
     failOnError = false
     source = android.sourceSets.main.java.srcDirs
     classpath += files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
 }
 
-tasks.register('androidJavadocsJar', Jar) {
-    from tasks.named('androidJavadocs').get().destinationDir
+task androidJavadocsJar(type: Jar) {
     archiveClassifier.set('javadoc')
+    from androidJavadocs.destinationDir
 }
 
-tasks.register('androidSourcesJar', Jar) {
-    from android.sourceSets.main.java.srcDirs
+task androidSourcesJar(type: Jar) {
     archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }
 
-artifacts {
-    archives tasks.named('androidSourcesJar')
-    archives tasks.named('androidJavadocsJar')
+// Configuration pour la publication des artefacts
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+            groupId = project.PUBLISH_GROUP_ID
+            artifactId = project.PUBLISH_ARTIFACT_ID
+            version = project.PUBLISH_VERSION
+
+            artifact androidSourcesJar
+            artifact androidJavadocsJar
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri("file://${localReleaseDest}")
+        }
+    }
 }
+
+// Tâche pour zipper le répertoire de release
+task zipRelease(type: Zip) {
+    from file(localReleaseDest)
+    destinationDirectory.set(file(buildDir))
+    archiveFileName.set("release-${PUBLISH_VERSION}.zip")
+}
+
+// Tâche pour afficher les informations de release
+task generateRelease {
+    doLast {
+        println "Release ${PUBLISH_VERSION} can be found at ${localReleaseDest}/"
+        println "Release ${PUBLISH_VERSION} zipped can be found at ${buildDir}/release-${PUBLISH_VERSION}.zip"
+    }
+}
+
+// Dépendances pour la génération de la release
+generateRelease.dependsOn zipRelease
