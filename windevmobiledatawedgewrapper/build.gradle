@@ -1,137 +1,122 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 ext {
     PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
     PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
-    PUBLISH_VERSION = '6.21'
+    PUBLISH_VERSION = '6.22'
+    jarName = "${PUBLISH_ARTIFACT_ID}-${PUBLISH_VERSION}.jar"
 }
 
 android {
-    compileSdkVersion 28
+    namespace 'com.zebra.windevmobiledatawedgewrapper'
+
+    compileSdkVersion 33
+
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        abortOnError false
-    }
-}
-
-repositories {
-    google()
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    api 'com.github.ltrudu:DataWedgeIntentWrapper:11.8'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    api 'com.github.ltrudu:DataWedgeIntentWrapper:14.0'
 }
 
-def jarName = 'windevmobiledatawedgewrapper.jar'
-
-task clearJarRelease(type: Delete) {
-    delete "${project.buildDir}/outputs/jar/release/" + jarName
+tasks.register('clearJarRelease', Delete) {
+    delete "${buildDir}/outputs/jar/release/${jarName}"
 }
 
-task clearJarDebug(type: Delete) {
-    delete "${project.buildDir}/outputs/jar/debug/" + jarName
+
+tasks.register('clearJarDebug', Delete) {
+    delete "${buildDir}/outputs/jar/debug/${jarName}"
 }
 
-task makeJarRelease(type: Copy) {
-    from("${project.buildDir}/intermediates/intermediate-jars/release/")
-    into("${project.buildDir}/outputs/jar/release")
+tasks.register('makeJarRelease', Copy) {
+    from("${buildDir}/intermediates/intermediate-jars/release/")
+    into("${buildDir}/outputs/jar/release")
     include('classes.jar')
     rename('classes.jar', jarName)
 }
 
-task makeJarDebug(type: Copy) {
-    from("${project.buildDir}/intermediates/intermediate-jars/debug/")
-    into("${project.buildDir}/outputs/jar/debug")
+tasks.register('makeJarDebug', Copy) {
+    from("${buildDir}/intermediates/intermediate-jars/debug/")
+    into("${buildDir}/outputs/jar/debug")
     include('classes.jar')
     rename('classes.jar', jarName)
 }
 
-task makeAllJar(type: Copy) {}
+tasks.register('makeAllJar', Copy) {
+    dependsOn tasks.named('makeJarRelease'), tasks.named('makeJarDebug')
+}
 
-makeJarRelease.dependsOn(clearJarRelease, build)
-makeJarDebug.dependsOn(clearJarDebug, build)
+tasks.named('makeJarRelease').configure {
+    dependsOn tasks.named('clearJarRelease'), tasks.named('build')
+}
 
-makeAllJar.dependsOn(makeJarDebug,makeJarRelease)
+tasks.named('makeJarDebug').configure {
+    dependsOn tasks.named('clearJarDebug'), tasks.named('build')
+}
 
-/*
-Publish tasks
-https://medium.com/@daniellevass/how-to-publish-your-android-studio-library-to-jcenter-5384172c4739
-https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle
- */
+tasks.register('zipRelease', Zip) {
+    from "${buildDir}/release/${PUBLISH_VERSION}"
+    destinationDirectory.set(buildDir)
+    archiveFileName.set("release-${PUBLISH_VERSION}.zip")
+}
 
-// ./gradlew clean build generateRelease
-apply plugin: 'maven'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.PUBLISH_GROUP_ID
+            artifactId = project.PUBLISH_ARTIFACT_ID
+            version = project.PUBLISH_VERSION
+        }
+    }
 
-def groupId = project.PUBLISH_GROUP_ID
-def artifactId = project.PUBLISH_ARTIFACT_ID
-def version = project.PUBLISH_VERSION
+    repositories {
+        maven {
+            url = uri("${buildDir}/release/${PUBLISH_VERSION}")
+        }
+    }
+}
 
-def localReleaseDest = "${buildDir}/release/${version}"
-
-task androidJavadocs(type: Javadoc) {
+tasks.register('androidJavadocs', Javadoc) {
     failOnError = false
     source = android.sourceSets.main.java.srcDirs
-    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-    classpath += files(ext.androidJar)
+    classpath += files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
 }
 
-task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-    classifier = 'javadoc'
-    from androidJavadocs.destinationDir
+tasks.register('androidJavadocsJar', Jar) {
+    from tasks.named('androidJavadocs').get().destinationDir
+    archiveClassifier.set('javadoc')
 }
 
-task androidSourcesJar(type: Jar) {
-    classifier = 'sources'
+tasks.register('androidSourcesJar', Jar) {
     from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set('sources')
 }
-
-uploadArchives {
-    repositories.mavenDeployer {
-        pom.groupId = groupId
-        pom.artifactId = artifactId
-        pom.version = version
-        // Add other pom properties here if you want (developer details / licenses)
-        repository(url: "file://${localReleaseDest}")
-    }
-}
-
-task zipRelease(type: Zip) {
-    from localReleaseDest
-    destinationDir buildDir
-    archiveName "release-${version}.zip"
-}
-
-task generateRelease {
-    doLast {
-        println "Release ${version} can be found at ${localReleaseDest}/"
-        println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
-    }
-}
-
-generateRelease.dependsOn(uploadArchives)
-generateRelease.dependsOn(zipRelease)
-
 
 artifacts {
-    archives androidSourcesJar
-    archives androidJavadocsJar
+    archives tasks.named('androidSourcesJar')
+    archives tasks.named('androidJavadocsJar')
 }
