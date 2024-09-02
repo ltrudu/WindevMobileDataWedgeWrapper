@@ -9,6 +9,7 @@
 /build
 /captures
 .externalNativeBuild
+.vscode
 .idea/
 gradle/echo
 windevmobiledatawedgewrapper/echo
