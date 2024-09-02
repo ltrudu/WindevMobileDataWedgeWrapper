@@ -9,3 +9,6 @@
 /build
 /captures
 .externalNativeBuild
+.idea/
+gradle/echo
+windevmobiledatawedgewrapper/echo
