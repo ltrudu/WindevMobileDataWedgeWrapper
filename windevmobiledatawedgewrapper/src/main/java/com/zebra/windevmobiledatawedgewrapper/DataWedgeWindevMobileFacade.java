@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import java.util.HashMap;
+
 
 public class DataWedgeWindevMobileFacade {
 
@@ -319,7 +321,8 @@ public class DataWedgeWindevMobileFacade {
 
         // Some parameters are forced in the plugin (ex: disable keystroke plugin, enable intent output, etc...)
         // Specific for windev
-        dwProfileSetConfigSettings.MainBundle.PACKAGE_NAME = getActivity().getPackageName();
+        dwProfileSetConfigSettings.MainBundle.APP_LIST = new HashMap<>();
+        dwProfileSetConfigSettings.MainBundle.APP_LIST.put(getActivity().getPackageName(), null);
         dwProfileSetConfigSettings.IntentPlugin.intent_action = mIntentAction;
         dwProfileSetConfigSettings.IntentPlugin.intent_category = mIntentCategory;
         dwProfileSetConfigSettings.IntentPlugin.intent_output_enabled = true;
