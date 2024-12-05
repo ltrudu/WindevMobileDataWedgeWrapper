@@ -1,5 +1,12 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+}
+
+ext {
+    PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
+    PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
+    PUBLISH_VERSION = '14.6'
 }
 
 android {
@@ -7,10 +14,10 @@ android {
 
     compileSdkVersion 34
     defaultConfig {
-        minSdkVersion 24
-        targetSdkVersion 34
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 146
+        versionName "14.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -19,9 +26,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.ltrudu:DataWedgeIntentWrapper:V6.7'
+    implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.6'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+            }
+        }
+    }
 }
