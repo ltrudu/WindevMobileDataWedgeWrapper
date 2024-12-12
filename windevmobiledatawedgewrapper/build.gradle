@@ -6,25 +6,7 @@ plugins {
 ext {
     PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
     PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
-    PUBLISH_VERSION = '14.6'
-}
-
-android {
-    namespace 'com.zebra.windevmobiledatawedgewrapper'
-
-    compileSdkVersion 33
-
-    defaultConfig {
-        minSdkVersion 24
-        targetSdkVersion 33
-        versionCode 3
-        versionName "7.3"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
+    PUBLISH_VERSION = '14.8'
 }
 
 android {
@@ -33,10 +15,9 @@ android {
     compileSdkVersion 34
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 33
-        versionCode 146
-        versionName "14.6"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        targetSdkVersion 34
+        versionCode 148
+        versionName "14.8"
     }
     buildTypes {
         release {
@@ -45,26 +26,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'androidx.test:core:1.4.0'
-    implementation 'androidx.test.ext:junit:1.1.3'
-    implementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.6'
+    implementation 'androidx.core:core-ktx:1.13.0'
+    implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.8'
 }
 
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.release
+                from components.findByName('release')
             }
         }
     }
 }
+//*/

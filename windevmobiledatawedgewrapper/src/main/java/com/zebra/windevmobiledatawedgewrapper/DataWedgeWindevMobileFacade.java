@@ -12,6 +12,8 @@ import android.content.IntentFilter;
 
 import java.util.HashMap;
 
+import androidx.core.content.ContextCompat;
+
 
 public class DataWedgeWindevMobileFacade {
 
@@ -444,7 +446,7 @@ public class DataWedgeWindevMobileFacade {
                 IntentFilter myFilter = new IntentFilter();
                 myFilter.addAction(mIntentAction);
                 myFilter.addCategory(mIntentCategory);
-                getActivity().getApplicationContext().registerReceiver(mMessageReceiver, myFilter);
+                ContextCompat.registerReceiver(getActivity(), mMessageReceiver, myFilter, ContextCompat.RECEIVER_EXPORTED);
             }
             catch(Exception e)
             {
