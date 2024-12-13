@@ -399,11 +399,10 @@ public class DataWedgeWindevMobileFacade {
     {
         String tempCallbackHandleScanString = msCallbackHandleScan;
         // Remove reference to the Windev callback called when a scan occurs
-        msCallbackHandleScan = "";
+        msCallbackHandleScan = null;
         Log.d(TAG, "Removing scan callback: " + tempCallbackHandleScanString + " succeeded");
 
         if(effacerReceiver && mMessageReceiver != null) {
-            mIntentAction = "";
             try {
                 getActivity().getApplicationContext().unregisterReceiver(mMessageReceiver);
             } catch (Exception e) {
@@ -431,11 +430,10 @@ public class DataWedgeWindevMobileFacade {
 
     public void DWEnregistrerCallbackDeScan(String sCallbackHandleScan, final String fsCallbackSucces, final String fsCallbackError)
     {
-        msCallbackHandleScan = sCallbackHandleScan;
-        Log.d(TAG, "Registering scan callback: " + sCallbackHandleScan + " succedeed");
-
         if(mMessageReceiver == null) {
+            msCallbackHandleScan = sCallbackHandleScan;
             mIntentAction = getActivity().getPackageName() + ".RECVR";
+            Log.d(TAG, "Registering message receiver on action:" + mIntentAction);
             try {
                 mMessageReceiver = new BroadcastReceiver() {
                     @Override
@@ -460,15 +458,22 @@ public class DataWedgeWindevMobileFacade {
                 }
                 return;
             }
-            Log.d(TAG, "Creating and registering message receiver: " + mIntentAction + " succedeed");
-        }
-        if(fsCallbackSucces != "")
-        {
-            if(mAppelProcedureWL != null) {
+            Log.d(TAG, "Creating and registering message receiver: " + mIntentAction + " on callback:" + sCallbackHandleScan + " succedeed");
+            if(fsCallbackSucces != "")
+            {
+                if(mAppelProcedureWL != null) {
 
-                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, msCallbackHandleScan);
+                    mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, msCallbackHandleScan);
+                }
             }
         }
+        else {
+            Log.d(TAG, "Warning: Scan callback already registered on :" + msCallbackHandleScan);
+            Log.d(TAG, "Changing callback to :" + sCallbackHandleScan);
+            Log.d(TAG, "Please unregister the callback before registering a new one.");
+            msCallbackHandleScan = sCallbackHandleScan;
+        }
+
     }
 
     public void DWDemarrerUnScan(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
