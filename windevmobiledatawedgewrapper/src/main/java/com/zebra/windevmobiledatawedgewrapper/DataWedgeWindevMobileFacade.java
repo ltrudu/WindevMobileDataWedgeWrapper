@@ -411,7 +411,7 @@ public class DataWedgeWindevMobileFacade {
                 {
                     if(mAppelProcedureWL != null) {
 
-                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, "ScanCallBack", tempCallbackHandleScanString, e.getMessage());
+                        mAppelProcedureWL.appelProcedureWLSSS(fsCallbackError, tempCallbackHandleScanString, e.getMessage());
                     }
                 }
                 return;
@@ -453,7 +453,7 @@ public class DataWedgeWindevMobileFacade {
                 {
                     if(mAppelProcedureWL != null) {
 
-                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError,"ScanCallBack", msCallbackHandleScan, e.getMessage());
+                        mAppelProcedureWL.appelProcedureWLSSS(fsCallbackError,msCallbackHandleScan, e.getMessage());
                     }
                 }
                 return;
