@@ -6,18 +6,17 @@ plugins {
 ext {
     PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
     PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
-    PUBLISH_VERSION = '14.9'
+    PUBLISH_VERSION = '14.10'
 }
 
 android {
     namespace "com.zebra.windevmobiledatawedgewrapper"
 
-    compileSdkVersion 34
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 160
-        versionName "14.9"
+        versionCode 161
+        versionName "14.10"
     }
     buildTypes {
         release {
