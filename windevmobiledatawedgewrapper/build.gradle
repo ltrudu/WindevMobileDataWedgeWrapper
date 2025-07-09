@@ -11,10 +11,10 @@ ext {
 
 android {
     namespace "com.zebra.windevmobiledatawedgewrapper"
-
+    compileSdkVersion 35
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 161
         versionName "14.10"
     }
