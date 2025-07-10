@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.zebra.windevmobiledatawedgewrapper</groupId>
     <artifactId>windevmobiledatawedgewrapper</artifactId>
-    <version>14.11</version>
+    <version>14.12</version>
     <packaging>pom</packaging>
     <description>Windev Mobile DataWedge Wrapper</description>
 </project>

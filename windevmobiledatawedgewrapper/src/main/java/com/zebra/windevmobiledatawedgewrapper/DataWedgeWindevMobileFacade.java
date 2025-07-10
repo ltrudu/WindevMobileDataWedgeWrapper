@@ -404,7 +404,7 @@ public class DataWedgeWindevMobileFacade {
 
         if(effacerReceiver && mMessageReceiver != null) {
             try {
-                getActivity().getApplicationContext().unregisterReceiver(mMessageReceiver);
+                getActivity().unregisterReceiver(mMessageReceiver);
             } catch (Exception e) {
                 Log.d(TAG, e.getMessage());
                 if(fsCallbackError != "")
