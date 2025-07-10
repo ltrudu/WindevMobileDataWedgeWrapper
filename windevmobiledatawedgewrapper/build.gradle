@@ -36,13 +36,26 @@ dependencies {
     implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.9'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.zebra.windevmobiledatawedgewrapper'
+            artifactId = 'windevmobiledatawedgewrapper'
+            version = '14.10'
+
+            afterEvaluate {
                 from components.findByName('release')
             }
         }
     }
 }
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            release(MavenPublication) {
+//                from components.findByName('release')
+//            }
+//        }
+//    }
+//}
 //*/
