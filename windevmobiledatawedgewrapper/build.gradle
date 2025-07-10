@@ -28,6 +28,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    publishing{
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -36,15 +42,17 @@ dependencies {
     implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.9'
 }
 
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = 'com.zebra.windevmobiledatawedgewrapper'
-            artifactId = 'windevmobiledatawedgewrapper'
-            version = '14.10'
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = 'com.zebra.windevmobiledatawedgewrapper'
+                artifactId = 'windevmobiledatawedgewrapper'
+                version = '14.10'
 
-            afterEvaluate {
-                from components.findByName('release')
+                afterEvaluate {
+                    from components.findByName('release')
+                }
             }
         }
     }
