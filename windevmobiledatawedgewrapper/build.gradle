@@ -6,7 +6,7 @@ plugins {
 ext {
     PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
     PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
-    PUBLISH_VERSION = '14.12'
+    PUBLISH_VERSION = '14.14'
 }
 
 android {
@@ -15,8 +15,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 162
-        versionName "14.12"
+        versionCode 163
+        versionName "14.14"
     }
     buildTypes {
         release {
@@ -48,7 +48,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId = 'com.zebra.windevmobiledatawedgewrapper'
                 artifactId = 'windevmobiledatawedgewrapper'
-                version = '14.12'
+                version = '14.14'
 
                 afterEvaluate {
                     from components.findByName('release')

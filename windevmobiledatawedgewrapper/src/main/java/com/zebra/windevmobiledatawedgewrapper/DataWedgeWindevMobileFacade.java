@@ -397,6 +397,18 @@ public class DataWedgeWindevMobileFacade {
 
     public void DWEffacerCallbackDeScan(boolean effacerReceiver, final String fsCallbackSucces, final String fsCallbackError)
     {
+        if(msCallbackHandleScan == null)
+        {
+            if(fsCallbackError != "")
+            {
+                if(mAppelProcedureWL != null) {
+
+                    mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, "ScanCallBack", "Erreur", "Pas de callback de scan enregistrée.");
+                }
+            }
+            Log.d(TAG, "DWEffacerCallbackDeScan: Error : Scan callback not registered.");
+            return;
+        }
         String tempCallbackHandleScanString = msCallbackHandleScan;
         // Remove reference to the Windev callback called when a scan occurs
         msCallbackHandleScan = null;
