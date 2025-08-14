@@ -589,68 +589,6 @@ public class DataWedgeWindevMobileFacade {
         });
     }
 
-    public void DWModifierLesParametresDuScanner_Java(String sCallback, String sCallbackError)
-    {
-        final String fsCallbackSucces = sCallback;
-        final String fsCallbackError = sCallbackError;
-
-        DWProfileSwitchBarcodeParams switchContinuousMode = new DWProfileSwitchBarcodeParams(getActivity());
-        // TO UPDATE
-        switchContinuousMode.execute(dwProfileSwitchBarcodeParamsSettings, new DWProfileCommandBase.onProfileCommandResult() {
-            @Override
-            public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
-            {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Scanner params on profile: " + profileName + " modification succeeded.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
-
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
-                        }
-                    }
-                }
-                else
-                {
-                    String sErreur = "Une erreur s'est produite lors de la modificationd des paramètres du scanner du profil: " + profileName;
-                    DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
-
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
-                        }
-                    }
-                }
-                _DWReinitialiseValeurs();
-            }
-
-            @Override
-            public void timeout(String profileName) {
-                String sErreur = "Timeout lors de la modificationd des paramètres du scanner du profil: " + profileName;
-                DWLogMessage(sErreur);
-                DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                if(fsCallbackError != "")
-                {
-                    if(mAppelProcedureWL != null) {
-
-                        mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, "");
-                    }
-                }
-                _DWReinitialiseValeurs();
-            }
-        });
-    }
-
-    public void DWCreerConfigurationModifierLesParametresDuScanner_Java(String settingsAsJSONString)
-    {
-        dwProfileSwitchBarcodeParamsSettings = DWProfileSwitchBarcodeParamsSettings.fromJson(settingsAsJSONString);
-    }
-
-
     public void DWActiverDataWedge(final String fsNomDuProfil, final long flTimeoutMs, final String fsCallbackSucces, final String fsCallbackError)
     {
         DWScannerPluginEnable dwpluginenable = new DWScannerPluginEnable(getActivity());

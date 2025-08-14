@@ -6,7 +6,7 @@ plugins {
 ext {
     PUBLISH_GROUP_ID = 'com.zebra.windevmobiledatawedgewrapper'
     PUBLISH_ARTIFACT_ID = 'windevmobiledatawedgewrapper'
-    PUBLISH_VERSION = '14.15'
+    PUBLISH_VERSION = '14.16'
 }
 
 android {
@@ -15,8 +15,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 164
-        versionName "14.15"
+        versionCode 165
+        versionName "14.16"
     }
     buildTypes {
         release {
@@ -39,7 +39,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.9'
+    implementation 'com.github.ltrudu:DataWedgeIntentWrapper:14.10'
 }
 
 afterEvaluate {
@@ -48,7 +48,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId = 'com.zebra.windevmobiledatawedgewrapper'
                 artifactId = 'windevmobiledatawedgewrapper'
-                version = '14.15'
+                version = '14.16'
 
                 afterEvaluate {
                     from components.findByName('release')
