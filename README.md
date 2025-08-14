@@ -1,3 +1,7 @@
+# Windev Mobile Demo Source Code
+The latest version of the Windev Mobile demo source code can be found at the following address:
+https://github.com/ltrudu/WindevMobile_Android_Zebra_Scan_Demo
+
 # END USER LICENSE AGREEMENT (UNRESTRICTED SOFTWARE)
 
 
