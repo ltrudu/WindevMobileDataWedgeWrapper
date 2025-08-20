@@ -132,6 +132,7 @@ public class DataWedgeWindevMobileFacade {
                 }
 
                 DWLogMessage("Scan: " + data + " " + sSymbology);
+                DWLogMessage("appelProcedureWLSSS SCan:" + msCallbackHandleScan);
                 mAppelProcedureWL.appelProcedureWLSSS(msCallbackHandleScan, data, sSymbology);
 
                 return true;
@@ -397,10 +398,11 @@ public class DataWedgeWindevMobileFacade {
 
     public void DWEffacerCallbackDeScan()
     {
+        msCallbackHandleScan = null;
+        // Remove reference to the Windev callback called when a scan occurs
+        Log.d(TAG, "Removing scan callback: " + msCallbackHandleScan + " succeeded");
+
         if(mMessageReceiver != null) {
-            // Remove reference to the Windev callback called when a scan occurs
-            Log.d(TAG, "Removing scan callback: " + msCallbackHandleScan + " succeeded");
-            msCallbackHandleScan = null;
             try {
                 getActivity().unregisterReceiver(mMessageReceiver);
                 Log.d(TAG, "Unregistering message receiver:" + mIntentAction + "succeeded");
@@ -454,9 +456,8 @@ public class DataWedgeWindevMobileFacade {
             }
         }
         else {
-            Log.d(TAG, "Warning: Scan callback already registered on :" + msCallbackHandleScan);
+            Log.d(TAG, "Scan callback already registered to :" + msCallbackHandleScan);
             Log.d(TAG, "Changing callback to :" + sCallbackHandleScan);
-            Log.d(TAG, "Please unregister the callback before registering a new one.");
             msCallbackHandleScan = sCallbackHandleScan;
             if(fsCallbackSucces != "")
             {
