@@ -395,30 +395,22 @@ public class DataWedgeWindevMobileFacade {
         dwProfileSwitchBarcodeParamsSettings = null;
     }
 
-    public void DWEffacerCallbackDeScan(boolean effacerReceiver, final String fsCallbackSucces, final String fsCallbackError)
+    public void DWEffacerCallbackDeScan()
     {
-        String tempCallbackHandleScanString = msCallbackHandleScan;
-        // Remove reference to the Windev callback called when a scan occurs
-        msCallbackHandleScan = null;
-        Log.d(TAG, "Removing scan callback: " + tempCallbackHandleScanString + " succeeded");
-
-        if(effacerReceiver && mMessageReceiver != null) {
+        if(mMessageReceiver != null) {
+            // Remove reference to the Windev callback called when a scan occurs
+            Log.d(TAG, "Removing scan callback: " + msCallbackHandleScan + " succeeded");
+            msCallbackHandleScan = null;
             try {
                 getActivity().unregisterReceiver(mMessageReceiver);
                 Log.d(TAG, "Unregistering message receiver:" + mIntentAction + "succeeded");
             } catch (Exception e) {
                 Log.d(TAG, e.getMessage());
+                mMessageReceiver = null;
                 return;
             }
             mMessageReceiver = null;
             Log.d(TAG, "Removing message receiver:" + mIntentAction + "succeeded");
-        }
-        if(fsCallbackSucces != "")
-        {
-            if(mAppelProcedureWL != null) {
-
-                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, tempCallbackHandleScanString);
-            }
         }
     }
 
@@ -466,6 +458,13 @@ public class DataWedgeWindevMobileFacade {
             Log.d(TAG, "Changing callback to :" + sCallbackHandleScan);
             Log.d(TAG, "Please unregister the callback before registering a new one.");
             msCallbackHandleScan = sCallbackHandleScan;
+            if(fsCallbackSucces != "")
+            {
+                if(mAppelProcedureWL != null) {
+
+                    mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, msCallbackHandleScan);
+                }
+            }
         }
 
     }
