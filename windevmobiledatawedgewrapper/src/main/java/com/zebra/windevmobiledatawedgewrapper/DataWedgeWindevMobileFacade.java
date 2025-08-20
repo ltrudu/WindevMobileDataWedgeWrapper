@@ -396,13 +396,13 @@ public class DataWedgeWindevMobileFacade {
         dwProfileSwitchBarcodeParamsSettings = null;
     }
 
-    public void DWEffacerCallbackDeScan()
+    public void DWEffacerCallbackDeScan(boolean removeMessageReceiver)
     {
         msCallbackHandleScan = null;
         // Remove reference to the Windev callback called when a scan occurs
         Log.d(TAG, "Removing scan callback: " + msCallbackHandleScan + " succeeded");
 
-        if(mMessageReceiver != null) {
+        if(removeMessageReceiver && mMessageReceiver != null) {
             try {
                 getActivity().unregisterReceiver(mMessageReceiver);
                 Log.d(TAG, "Unregistering message receiver:" + mIntentAction + "succeeded");
