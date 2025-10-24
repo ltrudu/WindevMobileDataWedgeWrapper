@@ -213,15 +213,25 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Profile: " + profileName + " created with success.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Profile: " + profileName + " created with success.");
+                        DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                        }
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors de la création du profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
                         }
                     }
                 }
@@ -229,14 +239,15 @@ public class DataWedgeWindevMobileFacade {
                 {
                     String sErreur = "Une erreur s'est produite lors de la création du profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
+
                 }
                 _DWReinitialiseValeurs();
             }
@@ -272,31 +283,42 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Profile: " + profileName + " deleted with success.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Profile: " + profileName + " deleted with success.");
+                        DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                            //appelProcedureWL(fsCallbackSucces, profileName);
                         }
-                        //appelProcedureWL(fsCallbackSucces, profileName);
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors de l'effacement du profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
+                        }
                     }
                 }
                 else
                 {
                     String sErreur = "Une erreur s'est produite lors de l'effacement du profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
+
                 }
                 _DWReinitialiseValeurs();
             }
@@ -345,15 +367,25 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Profile: " + profileName + " intialised with success.");
-                    DWLogMessage("Trying to call procedure: " + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Profile: " + profileName + " intialised with success.");
+                        DWLogMessage("Trying to call procedure: " + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                        }
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors de l'initialisation du profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure: " + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
                         }
                     }
                 }
@@ -361,14 +393,15 @@ public class DataWedgeWindevMobileFacade {
                 {
                     String sErreur = "Une erreur s'est produite lors de l'initialisation du profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure: " + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
+
                 }
                 _DWReinitialiseValeurs();
             }
@@ -484,15 +517,25 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Scan on profile: " + profileName + " started with success.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Scan on profile: " + profileName + " started with success.");
+                        DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                        }
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors du demarrage du scan pour le profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
                         }
                     }
                 }
@@ -500,14 +543,15 @@ public class DataWedgeWindevMobileFacade {
                 {
                     String sErreur = "Une erreur s'est produite lors du demarrage du scan pour le profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
+
                 }
                 _DWReinitialiseValeurs();
             }
@@ -544,28 +588,38 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Scan on profile: " + profileName + " stopped with success.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Scan on profile: " + profileName + " stopped with success.");
+                        DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                        }
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors de la demande d'arrêt du scan pour le profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
                         }
                     }
                 }
                 else
                 {
-                    String sErreur = "Une erreur s'est produite lors de la demande d'arrêt du scan pour le profil: " + profileName;
+                    String sErreur = "Une erreur s'est produite lors de la commande stop scan pour le profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
                 }
@@ -603,15 +657,25 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Plugin on profile: " + profileName + " enabled with success.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Plugin on profile: " + profileName + " enabled with success.");
+                        DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                        }
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors de l'activation de DataWedge pour le profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
                         }
                     }
                 }
@@ -619,14 +683,15 @@ public class DataWedgeWindevMobileFacade {
                 {
                     String sErreur = "Une erreur s'est produite lors de l'activation de DataWedge pour le profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
+
                 }
                 _DWReinitialiseValeurs();
             }
@@ -662,30 +727,41 @@ public class DataWedgeWindevMobileFacade {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
-                if(result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS))
-                {
-                    DWLogMessage("Plugin on profile: " + profileName + " disabled with success.");
-                    DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
-                    if(fsCallbackSucces != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                if(result != null) {
+                    if (result.equalsIgnoreCase(DataWedgeConstants.COMMAND_RESULT_SUCCESS)) {
+                        DWLogMessage("Plugin on profile: " + profileName + " disabled with success.");
+                        DWLogMessage("Trying to call procedure:" + fsCallbackSucces);
+                        if (fsCallbackSucces != "") {
+                            if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                                mAppelProcedureWL.appelProcedureWLSS(fsCallbackSucces, profileName);
+                            }
+                        }
+                    } else {
+                        String sErreur = "Une erreur s'est produite lors de la desactivation de DataWedge pour le profil: " + profileName;
+                        DWLogMessage(sErreur);
+                        DWLogMessage("Trying to call procedure:" + fsCallbackError);
+                        if (fsCallbackError != "") {
+                            if (mAppelProcedureWL != null) {
+
+                                mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            }
                         }
                     }
                 }
                 else
                 {
-                    String sErreur = "Une erreur s'est produite lors de la desactivation de DataWedge pour le profil: " + profileName;
+                    String sErreur = "Une erreur s'est produite lors de la désactivation de DataWedge pour le profil: " + profileName;
                     DWLogMessage(sErreur);
-                    DWLogMessage("Trying to call procedure:" + fsCallbackError);
-                    if(fsCallbackError != "")
-                    {
-                        if(mAppelProcedureWL != null) {
+                    String sErreurDetail = "Le résultat renvoyé par DataWedge est Null";
+                    DWLogMessage(sErreurDetail);
+                    if (fsCallbackError != "") {
+                        if (mAppelProcedureWL != null) {
 
-                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, resultInfo);
+                            mAppelProcedureWL.appelProcedureWLSSSS(fsCallbackError, profileName, sErreur, sErreurDetail);
                         }
                     }
+
                 }
                 _DWReinitialiseValeurs();
             }
