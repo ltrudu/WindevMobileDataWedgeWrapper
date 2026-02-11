@@ -209,7 +209,7 @@ public class DataWedgeWindevMobileFacade {
             mTimeOutMS = flTimeoutMs;
         }};
 
-        profileCreate.execute(profileCreateSettings, new DWProfileCommandBase.onProfileCommandResult() {
+        profileCreate.execute(profileCreateSettings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
@@ -279,7 +279,7 @@ public class DataWedgeWindevMobileFacade {
             mTimeOutMS = flTimeoutMs;
         }};
 
-        deleteProfile.execute(profileDeleteSettings, new DWProfileCommandBase.onProfileCommandResult() {
+        deleteProfile.execute(profileDeleteSettings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
@@ -348,7 +348,7 @@ public class DataWedgeWindevMobileFacade {
         // Specific for windev
         dwProfileSetConfigSettings.MainBundle.APP_LIST = new HashMap<>();
         dwProfileSetConfigSettings.MainBundle.APP_LIST.put(getActivity().getPackageName(), null);
-        dwProfileSetConfigSettings.IntentPlugin.intent_action = mIntentAction;
+        dwProfileSetConfigSettings.IntentPlugin.intent_action = getActivity().getPackageName() + ".RECVR";
         dwProfileSetConfigSettings.IntentPlugin.intent_category = mIntentCategory;
         dwProfileSetConfigSettings.IntentPlugin.intent_output_enabled = true;
         dwProfileSetConfigSettings.KeystrokePlugin.keystroke_output_enabled = false;
@@ -363,7 +363,7 @@ public class DataWedgeWindevMobileFacade {
 
         DWProfileSetConfig profileSetConfig = new DWProfileSetConfig(getActivity());
 
-        profileSetConfig.execute(dwProfileSetConfigSettings, new DWProfileCommandBase.onProfileCommandResult() {
+        profileSetConfig.execute(dwProfileSetConfigSettings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
@@ -513,7 +513,7 @@ public class DataWedgeWindevMobileFacade {
             mTimeOutMS = flTimeoutMs;
         }};
 
-        dwstartscan.execute(settings, new DWProfileCommandBase.onProfileCommandResult() {
+        dwstartscan.execute(settings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
@@ -584,7 +584,7 @@ public class DataWedgeWindevMobileFacade {
             mTimeOutMS = flTimeoutMs;
         }};
 
-        dwstopscan.execute(settings, new DWProfileCommandBase.onProfileCommandResult() {
+        dwstopscan.execute(settings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
@@ -653,7 +653,7 @@ public class DataWedgeWindevMobileFacade {
             mTimeOutMS = flTimeoutMs;
         }};
 
-        dwpluginenable.execute(settings, new DWProfileCommandBase.onProfileCommandResult() {
+        dwpluginenable.execute(settings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
@@ -723,7 +723,7 @@ public class DataWedgeWindevMobileFacade {
             mTimeOutMS = flTimeoutMs;
         }};
 
-        dwplugindisable.execute(settings, new DWProfileCommandBase.onProfileCommandResult() {
+        dwplugindisable.execute(settings, new IProfileCommandResult() {
             @Override
             public void result(String profileName, String action, String command, String result, String resultInfo, String commandidentifier)
             {
